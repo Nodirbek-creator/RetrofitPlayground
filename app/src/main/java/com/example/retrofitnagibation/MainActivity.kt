@@ -35,6 +35,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -47,40 +48,39 @@ import kotlinx.coroutines.delay
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import com.example.retrofitnagibation.model.Login
 import com.example.retrofitnagibation.model.Product
+import com.example.retrofitnagibation.navigation.AppNavHost
 import uz.itteacher.myapi.model.Products
-import uz.itteacher.myapi.model.User
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        var products: List<Product> = emptyList()
 
         val apiService = RetrofitBuilder.getInstance().create(ApiService::class.java)
-        apiService.getProducts().enqueue(object : Callback<Products> {
-            override fun onResponse(
-                call: Call<Products?>,
-                response: Response<Products?>
-            ) {
-                if (response.isSuccessful) {
-                    products = (response.body()!!.products)
-                }
-            }
-
-            override fun onFailure(
-                call: Call<Products?>,
-                t: Throwable
-            ) {
-                Log.d("TAG", "onFailure: ${t.message}")
-            }
-
-        })
 
 
 //  Retrofit use cases
-
+        /*get all products*/
+//        apiService.getProducts().enqueue(object : Callback<Products> {
+//            override fun onResponse(
+//                call: Call<Products?>,
+//                response: Response<Products?>
+//            ) {
+//                if (response.isSuccessful) {
+//                    products = (response.body()!!.products)
+//                }
+//            }
+//
+//            override fun onFailure(
+//                call: Call<Products?>,
+//                t: Throwable
+//            ) {
+//                Log.d("TAG", "onFailure: ${t.message}")
+//            }
+//
+//        })
+        /*get product by id*/
 //        val id = 6
 //        apiService.getProductById(id).enqueue(object : Callback<Product> {
 //            override fun onResponse(
@@ -100,7 +100,7 @@ class MainActivity : ComponentActivity() {
 //                Log.d("TAG", "onFailure: ${t.message}")
 //            }
 //        })
-//
+//     /*search a product*/
 //        apiService.searchProducts("car").enqueue(object : Callback<Products> {
 //            override fun onResponse(
 //                call: Call<Products?>,
@@ -118,97 +118,16 @@ class MainActivity : ComponentActivity() {
 //
 //        })
 //
-//        apiService.login(Login("kminchelle", "0lelplR"))
-//            .enqueue(object : Callback<User> {
-//                override fun onResponse(
-//                    call: Call<User?>,
-//                    response: Response<User?>
-//                ) {
-//                    Log.d("TAG", "onResponse: ${response.body()?.username}")
-//                }
-//
-//                override fun onFailure(
-//                    call: Call<User?>,
-//                    t: Throwable
-//                ) {
-//                    Log.d("TAG", "onFailure: ${t.message}")
-//                }
-//            })
+
 
         setContent {
-            RetrofitNagibationTheme {
-                var isLoading by remember { mutableStateOf(false) }
-
-                LaunchedEffect(isLoading) {
-                    delay(1000)
-                    if (products.isNotEmpty()) {
-                        isLoading = false
-                    }
-                }
-                Scaffold(
-                    contentWindowInsets = WindowInsets.systemBars
-                ) {pad->
-                    Column(
-                        modifier = Modifier.fillMaxSize().padding(pad),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.6f),
-                        ) {
-                            items(products){
-                                ProductCard(
-                                    product = it,
-                                    onClick = {
-                                        /*todo: move to next screen*/
-                                    }
-                                )
-                            }
-                        }
-                        Button(
-                            onClick = {
-                                isLoading = true
-                            }
-                        ) {
-                            Text("Update", fontSize = 20.sp)
-                        }
-                    }
-                }
-
-            }
-        }
-    }
-}
-
-@Composable
-fun ProductCard(
-    product: Product,
-    onClick:() ->Unit){
-    Card(
-        onClick = {onClick()},
-        modifier = Modifier.width(600.dp).height(300.dp)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AsyncImage(
-                modifier = Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(16.dp)),
-                model = ImageRequest.Builder(LocalContext.current)
-                    .memoryCachePolicy(CachePolicy.ENABLED)
-                    .diskCachePolicy(CachePolicy.ENABLED)
-                    .data(product.images[0])
-                    .size(300,200)
-                    .scale(Scale.FILL)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Fit
-            )
-            Spacer(Modifier.height(12.dp))
-            Text(
-                text = product.title,
-                fontSize = 18.sp,
+            AppNavHost(
+                navController = rememberNavController(),
+                modifier = Modifier,
+                startDestination = "splash",
+                apiService = apiService
             )
         }
     }
 }
+

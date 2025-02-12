@@ -9,7 +9,7 @@ import retrofit2.http.Query
 import com.example.retrofitnagibation.model.Login
 import com.example.retrofitnagibation.model.Product
 import uz.itteacher.myapi.model.Products
-import uz.itteacher.myapi.model.User
+import com.example.retrofitnagibation.model.User
 
 interface ApiService{
     //      https://dummyjson.com/products
